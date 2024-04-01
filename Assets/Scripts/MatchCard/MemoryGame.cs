@@ -1,157 +1,302 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-//using DG.Tweening;
-using System;
 
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
-namespace Bridge.Scripts.Minigames
+namespace Scripts.Minigames
 {
-    //[RequireComponent(typeof(InteractableUnityEventWrapper))]
-    //[RequireComponent(typeof(OutlineController))]
-    public class MemoryCard : MonoBehaviour
+    [Serializable]
+    public class Match
     {
-        private bool isFlippedOpen = false;
-        public bool IsFlippedOpen => isFlippedOpen;
-
-        private bool isDone = false;
-        public bool IsDone
+        [SerializeField] private MemoryCard cardToMatch;
+        public MemoryCard CardToMatch
         {
-            get { return isDone; }
-            set { isDone = value; }
+            get { return cardToMatch; }
+            set { cardToMatch = value; }
         }
 
-        private bool isEnabled = true;
-        public bool IsEnabled
+        [SerializeField] private MemoryCard duplicateCardToMatch;
+        public MemoryCard DuplicateCardToMatch
         {
-            get { return isEnabled; }
-            set { isEnabled = value; }
+            get { return duplicateCardToMatch; }
+            set { duplicateCardToMatch = value; }
         }
 
-        //private OutlineController outlineController;
-        //public OutlineController OutlineController => outlineController;
+        private bool isMatchedUp;
+        public bool IsMatchedUp => isMatchedUp;
 
-        [SerializeField] private bool IsTesting;
-
-        private int copyNeeded = 2;
-
-        public int CopyNeeded => copyNeeded;
-
-        private Action OnHover;
-        private Action UnHover;
-        private Action OnSelect;
-
-        public Action<MemoryCard> OnSelectedCard;
-        public Action OnDeselect;
-
-        private void Awake()
+        public bool MatchUp(MemoryCard currentSelectedCard)
         {
-            OnHover += EnableOutline;
-            OnSelect += Select;
+            if (currentSelectedCard == cardToMatch || currentSelectedCard == duplicateCardToMatch)
+            {
+                isMatchedUp = true;
+                cardToMatch.IsDone = true;
+                duplicateCardToMatch.IsDone = true;
+                return true;
+            }
+            return false;
         }
+    }
+
+    public class MemoryGame : MonoBehaviour
+    {
+        [SerializeField] private MemoryCard[] memoryCardPrefabs;
+
+        private MemoryCard currentSelectedCard = null;
+        private MemoryCard previousSelectedCard = null;
+
+        [Tooltip("Ideal vector3 is (0,0,0) in local position")]
+        [SerializeField] private Transform cardSpawnAnchor;
+
+        [Tooltip("X and Y should multiply and equal to double the number of prefabs")][SerializeField] private int gridXSize, gridYSize;
+        private int point = 0, copySpawned = 0, index = 0;
+
+        [Tooltip("Determines the gap size between each card in x axis")][SerializeField] private float gapXLength;
+        [Tooltip("Determines the gap size between each card in y axis")] [SerializeField] private float gapYLength;
+
+        public Action OnMemoryGameSuccess;
+
+        [HideInInspector] [SerializeField] private List<Match> Matches;
+
+        //For shuffle
+        [HideInInspector] [SerializeField] private List<GameObject> gameObjectList = new List<GameObject>();
+        [HideInInspector] [SerializeField] private List<Vector3> cardPositions = new List<Vector3>();
 
         private void Start()
         {
-            //outlineController = GetComponent<OutlineController>();
-            //outlineController.DisableColouredOutline();
-
-            //transform.GetComponent<InteractableUnityEventWrapper>().WhenHover.AddListener(() => OnHover?.Invoke());
-            //transform.GetComponent<InteractableUnityEventWrapper>().WhenUnhover.AddListener(() => UnHover?.Invoke());
-            //transform.GetComponent<InteractableUnityEventWrapper>().WhenSelect.AddListener(() => OnSelect?.Invoke());
-        }
-
-        private void EnableOutline()
-        {
-            if (!isEnabled) { return; }
-
-            if (isFlippedOpen) { return; }
-            OnHover -= EnableOutline;
-            //outlineController.EnableColouredOutline();
-            UnHover += DisableOutline;
-        }
-        private void DisableOutline()
-        {
-            if (!isEnabled) { return; }
-
-            if (isFlippedOpen) { return; }
-            UnHover -= DisableOutline;
-            //outlineController.DisableColouredOutline();
-            OnHover += EnableOutline;
-        }
-        private void Select()
-        {
-            if (isDone) { return; }
-
-            if (!isEnabled) { return; }
-
-            //Check if this already flipped open card has been selected again
-            if (isFlippedOpen)
+            if (cardSpawnAnchor.childCount <= 0)
             {
-                StartCoroutine(FlipClose());
-                //OnDeselect?.Invoke();
+                print("Please generate cards first");
                 return;
             }
-            StartCoroutine(FlipOpen());
-        }
 
-        public IEnumerator FlipOpen()
-        {
-            //tweening to flip open
-            isFlippedOpen = true;
-            for (float i = 180f; i >= 0f; i -= 10f)
+            foreach (Transform child in cardSpawnAnchor)
             {
-                transform.localRotation = Quaternion.Euler(0f, 0f, i);
-                yield return new WaitForSeconds(0.01f);
+                if (!child.GetComponent<MemoryCard>()) { return; }
+
+                MemoryCard instance = child.GetComponent<MemoryCard>();
+                instance.StartCoroutine(instance.FlipClose());
+
+                instance.OnSelectedCard += CheckIfMatchUp;
+                instance.OnDeselect += ResetToNull;
             }
-            //outlineController.EnableColouredOutline();
-            OnSelectedCard?.Invoke(this);
+
+            ShuffleCards();
         }
 
-        public IEnumerator FlipClose()
+        public void GenerateGame()
         {
-            //tweening to flip down
-            isFlippedOpen = false;
-            for (float i = 0f; i <= 180f; i += 10f)
+            if (cardSpawnAnchor.childCount > 0)
             {
-                transform.localRotation = Quaternion.Euler(0f, 0f, i);
-                yield return new WaitForSeconds(0.01f);
+                print($"Please destroy all copies in the {cardSpawnAnchor} first");
+                return;
             }
-            DisableOutline();
-            OnDeselect?.Invoke();
+            GenerationImplementation(gapXLength, gapYLength);
         }
 
-        public void ResetFlip()
+        public void ResetAll()
         {
-            StartCoroutine(FlipClose());
+            index = 0;
+            copySpawned = 0;
+            while (cardSpawnAnchor.childCount > 0)
+            {
+                DestroyImmediate(cardSpawnAnchor.GetChild(0).gameObject);
+            }
+
+            if (Matches.Count > 0)
+            {
+                Matches.Clear();
+            }
+            if (gameObjectList.Count > 0)
+            {
+                gameObjectList.Clear();
+            }
+            if (cardPositions.Count > 0)
+            {
+                cardPositions.Clear();
+            }
+
         }
 
+        private void CheckIfMatchUp(MemoryCard currentCard)
+        {
+            previousSelectedCard = currentSelectedCard;
+            currentSelectedCard = currentCard;
+
+            if (previousSelectedCard == null) return;
+
+            for (int i = 0; i < Matches.Count; i++)
+            {
+                if (Matches[i].IsMatchedUp) { continue; }
+
+                if (Matches[i].CardToMatch == previousSelectedCard || Matches[i].DuplicateCardToMatch == previousSelectedCard)
+                {
+                    setCards(false);
+
+                    if (Matches[i].MatchUp(currentSelectedCard))
+                    {
+                        addPoint();
+                        ResetToNull();
+                    }
+                    else
+                    {
+                        StartCoroutine(ResetCards());
+                        //Debug.LogError("Reset");
+                    }
+                }
+            }
+        }
+
+        private void setCards(bool isEnabled)
+        {
+            for (int i = 0; i < Matches.Count; i++)
+            {
+                if (Matches[i].IsMatchedUp) { continue; }
+
+                Matches[i].CardToMatch.IsEnabled = isEnabled;
+                Matches[i].DuplicateCardToMatch.IsEnabled = isEnabled;
+
+                if (isEnabled) { continue; }
+
+                if (Matches[i].CardToMatch != previousSelectedCard || Matches[i].CardToMatch != currentSelectedCard)
+                {
+                    Matches[i].CardToMatch.SetOutline(false);
+                }
+                if (Matches[i].DuplicateCardToMatch != previousSelectedCard || Matches[i].DuplicateCardToMatch != currentSelectedCard)
+                {
+                    Matches[i].DuplicateCardToMatch.SetOutline(false);
+                }
+            }
+        }
+
+        private IEnumerator ResetCards()
+        {
+            if (previousSelectedCard && currentSelectedCard)
+            {
+                yield return new WaitForSeconds(.4f);
+                previousSelectedCard.ResetFlip();
+                currentSelectedCard.ResetFlip();
+            }
+        }
+
+        private void ResetToNull()
+        {
+            StopAllCoroutines();
+            previousSelectedCard = null;
+            currentSelectedCard = null;
+            setCards(true);
+        }
+
+        private void addPoint()
+        {
+            point++;
+            if (point >= Matches.Count)
+            {
+                OnMemoryGameSuccess?.Invoke();
+                //Debug.LogError("Succuess");
+            }
+        }
+
+        private void AssignToLists(GameObject obj, int matchIndex)
+        {
+            MemoryCard card = obj.GetComponent<MemoryCard>();
+
+            if (Matches[matchIndex].CardToMatch == null)
+            {
+                Matches[matchIndex].CardToMatch = card;
+            }
+            else
+            {
+                Matches[matchIndex].DuplicateCardToMatch = card;
+            }
+            gameObjectList.Add(obj);
+            cardPositions.Add(obj.transform.position);
+        }
+
+        public void ShuffleCards()
+        {
+            for (int i = 0; i < gameObjectList.Count; i++)
+            {
+                GameObject tempObject = gameObjectList[i];
+                int randomIndex = UnityEngine.Random.Range(i, gameObjectList.Count);
+                gameObjectList[i] = gameObjectList[randomIndex];
+                gameObjectList[randomIndex] = tempObject;
+            }
+
+            if (cardPositions.Count != gameObjectList.Count) { return; }
+
+            for (int j = 0; j < cardPositions.Count; j++)
+            {
+                gameObjectList[j].transform.position = cardPositions[j];
+            }
+        }
+
+        //Instantiate with different cards; each card has two copies to match with each other
+        private void GenerationImplementation(float _xAxis, float _yAxis)
+        {
+            for (int m = 0; m < memoryCardPrefabs.Length; m++)
+            {
+                Match match = new Match();
+                Matches.Add(match);
+            }
+            for (int i = 0; i < gridXSize; i++)
+            {
+                for (int j = 0; j < gridYSize; j++)
+                {
+                    GameObject obj = Instantiate(memoryCardPrefabs[index].gameObject, cardSpawnAnchor);
+                    obj.transform.localPosition = new Vector3(_xAxis * i, _yAxis * j, 0) + cardSpawnAnchor.localPosition;
+                    obj.transform.localRotation = Quaternion.identity;
+
+                    MemoryCard instance = obj.GetComponent<MemoryCard>();
+
+                    AssignToLists(obj, index);
+
+                    if (!CheckCopyNeeded(instance))
+                    {
+                        index++;
+                        copySpawned = 0;
+                    }
+
+                }
+            }
+            ShuffleCards();
+        }
+
+        private bool CheckCopyNeeded(MemoryCard currentCard)
+        {
+            if (copySpawned < currentCard.CopyNeeded - 1)
+            {
+                copySpawned++;
+                return true;
+            }
+            return false;
+        }
 
 #if UNITY_EDITOR
-        [CustomEditor(typeof(MemoryCard))]
-        public class MemoryCard_Editor : Editor
+        [CustomEditor(typeof(MemoryGame))]
+        public class MemoryGame_Editor : Editor
         {
             public override void OnInspectorGUI()
             {
                 DrawDefaultInspector(); // for other non-HideInInspector fields
 
-                MemoryCard script = (MemoryCard)target;
+                MemoryGame script = (MemoryGame)target;
 
-                if (script.IsTesting)
+                if (GUILayout.Button("Generate cards in scene"))
                 {
-                    if (GUILayout.Button("Flip Up (testing)"))
-                    {
-                        script.StartCoroutine(script.FlipOpen());
-                    }
-                    if (GUILayout.Button("Flip Down (testing)"))
-                    {
-                        script.StartCoroutine(script.FlipClose());
-                    }
+                    script.GenerateGame();
+                }
+                if (GUILayout.Button("Reset"))
+                {
+                    script.ResetAll();
                 }
             }
         }
 #endif
     }
 }
+

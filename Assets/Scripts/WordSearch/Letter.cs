@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 //using DG.Tweening;
-using Bridge.Scripts;
 
 //[RequireComponent(typeof(InteractableUnityEventWrapper))]
 //[RequireComponent(typeof(OutlineController))]
