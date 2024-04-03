@@ -44,7 +44,7 @@ namespace Scripts.Minigames
 
     public class MemoryGame : MonoBehaviour
     {
-        [SerializeField] private MemoryCard[] memoryCardPrefabs;
+        [SerializeField] private GameObject[] memoryCardPrefabs;
 
         private MemoryCard currentSelectedCard = null;
         private MemoryCard previousSelectedCard = null;
@@ -76,9 +76,9 @@ namespace Scripts.Minigames
 
             foreach (Transform child in cardSpawnAnchor)
             {
-                if (!child.GetComponent<MemoryCard>()) { return; }
+                if (!child.GetComponentInChildren<MemoryCard>()) { return; }
 
-                MemoryCard instance = child.GetComponent<MemoryCard>();
+                MemoryCard instance = child.GetComponentInChildren<MemoryCard>();
                 instance.StartCoroutine(instance.FlipClose());
 
                 instance.OnSelectedCard += CheckIfMatchUp;
@@ -135,11 +135,11 @@ namespace Scripts.Minigames
 
                 if (Matches[i].CardToMatch == previousSelectedCard || Matches[i].DuplicateCardToMatch == previousSelectedCard)
                 {
-                    setCards(false);
+                    SetCards(false);
 
                     if (Matches[i].MatchUp(currentSelectedCard))
                     {
-                        addPoint();
+                        AddPoint();
                         ResetToNull();
                     }
                     else
@@ -151,7 +151,7 @@ namespace Scripts.Minigames
             }
         }
 
-        private void setCards(bool isEnabled)
+        private void SetCards(bool isEnabled)
         {
             for (int i = 0; i < Matches.Count; i++)
             {
@@ -188,10 +188,10 @@ namespace Scripts.Minigames
             StopAllCoroutines();
             previousSelectedCard = null;
             currentSelectedCard = null;
-            setCards(true);
+            SetCards(true);
         }
 
-        private void addPoint()
+        private void AddPoint()
         {
             point++;
             if (point >= Matches.Count)
@@ -203,7 +203,7 @@ namespace Scripts.Minigames
 
         private void AssignToLists(GameObject obj, int matchIndex)
         {
-            MemoryCard card = obj.GetComponent<MemoryCard>();
+            MemoryCard card = obj.GetComponentInChildren<MemoryCard>();
 
             if (Matches[matchIndex].CardToMatch == null)
             {
@@ -248,10 +248,11 @@ namespace Scripts.Minigames
                 for (int j = 0; j < gridYSize; j++)
                 {
                     GameObject obj = Instantiate(memoryCardPrefabs[index].gameObject, cardSpawnAnchor);
-                    obj.transform.localPosition = new Vector3(_xAxis * i, _yAxis * j, 0) + cardSpawnAnchor.localPosition;
-                    obj.transform.localRotation = Quaternion.identity;
+                    obj.transform.position = new Vector3(_xAxis * i, _yAxis * j, 0) + cardSpawnAnchor.position;
+                    //Debug.LogError(obj.transform.position + " i" + i + " j" + j);
+                    obj.transform.rotation = Quaternion.identity;
 
-                    MemoryCard instance = obj.GetComponent<MemoryCard>();
+                    MemoryCard instance = obj.GetComponentInChildren<MemoryCard>();
 
                     AssignToLists(obj, index);
 

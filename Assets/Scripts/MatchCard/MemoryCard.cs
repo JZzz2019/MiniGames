@@ -52,10 +52,6 @@ namespace Scripts.Minigames
             outline = GetComponent<Outline>();
             SetOutline(false);
 
-            //transform.GetComponent<InteractableUnityEventWrapper>().WhenHover.AddListener(() => OnHover?.Invoke());
-            //transform.GetComponent<InteractableUnityEventWrapper>().WhenUnhover.AddListener(() => UnHover?.Invoke());
-            //transform.GetComponent<InteractableUnityEventWrapper>().WhenSelect.AddListener(() => OnSelect?.Invoke());
-
             eventClick.OnHover += EnableOutline;
             eventClick.OnSelect += Select;
         }
@@ -104,7 +100,7 @@ namespace Scripts.Minigames
             isFlippedOpen = true;
             for (float i = 180f; i >= 0f; i -= 10f)
             {
-                transform.localRotation = Quaternion.Euler(0f, 0f, i);
+                transform.parent.localRotation = Quaternion.Euler(0f, i, 0f);
                 yield return new WaitForSeconds(0.01f);
             }
             SetOutline(true);
@@ -117,7 +113,7 @@ namespace Scripts.Minigames
             isFlippedOpen = false;
             for (float i = 0f; i <= 180f; i += 10f)
             {
-                transform.localRotation = Quaternion.Euler(0f, 0f, i);
+                transform.parent.localRotation = Quaternion.Euler(0f, i, 0f);
                 yield return new WaitForSeconds(0.01f);
             }
             DisableOutline();
