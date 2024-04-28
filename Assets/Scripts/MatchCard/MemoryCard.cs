@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using System;
-using Outsource.Outline;
+using DG.Tweening;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -10,7 +10,6 @@ using UnityEditor;
 namespace Scripts.Minigames
 {
     [RequireComponent(typeof(EventClick))]
-    [RequireComponent(typeof(Outline))]
     public class MemoryCard : MonoBehaviour
     {
         private bool isFlippedOpen = false;
@@ -30,7 +29,6 @@ namespace Scripts.Minigames
             set { isEnabled = value; }
         }
 
-        private Outline outline;
         private EventClick eventClick;
 
         [SerializeField] private bool IsTesting;
@@ -39,45 +37,38 @@ namespace Scripts.Minigames
 
         public int CopyNeeded => copyNeeded;
 
+        private Vector3 originalScale;
+        [SerializeField] [Range(0f, 0.2f)] private float scaleAdder;
+
         public Action<MemoryCard> OnSelectedCard;
         public Action OnDeselect;
 
         private void Awake()
         {
             eventClick = GetComponent<EventClick>();
+            scaleAdder = 0.15f;
         }
 
         private void Start()
         {
-            outline = GetComponent<Outline>();
-            SetOutline(false);
-
-            eventClick.OnHover += EnableOutline;
+            originalScale = transform.parent.localScale;
+            eventClick.OnHover += EnableHighlightEffect;
             eventClick.OnSelect += Select;
         }
 
-        public void SetOutline(bool isEnabled)
-        {
-            outline.enabled = isEnabled;
-        }
-
-        private void EnableOutline()
+        private void EnableHighlightEffect()
         {
             if (!isEnabled) { return; }
 
-            if (isFlippedOpen) { return; }
-            eventClick.OnHover -= EnableOutline;
-            SetOutline(true);
-            eventClick.OnUnhover += DisableOutline;
+            eventClick.OnHover -= EnableHighlightEffect;
+            ShowHighlightEffect(false);
         }
-        private void DisableOutline()
+        private void DisableHighlightEffect()
         {
             if (!isEnabled) { return; }
 
-            if (isFlippedOpen) { return; }
-            eventClick.OnUnhover -= DisableOutline;
-            SetOutline(false);
-            eventClick.OnHover += EnableOutline;
+            eventClick.OnUnhover -= DisableHighlightEffect;
+            ShowHighlightEffect(true);
         }
         private void Select()
         {
@@ -103,7 +94,6 @@ namespace Scripts.Minigames
                 transform.parent.localRotation = Quaternion.Euler(0f, i, 0f);
                 yield return new WaitForSeconds(0.01f);
             }
-            SetOutline(true);
             OnSelectedCard?.Invoke(this);
         }
 
@@ -116,13 +106,26 @@ namespace Scripts.Minigames
                 transform.parent.localRotation = Quaternion.Euler(0f, i, 0f);
                 yield return new WaitForSeconds(0.01f);
             }
-            DisableOutline();
+            DisableHighlightEffect();
             OnDeselect?.Invoke();
         }
 
         public void ResetFlip()
         {
             StartCoroutine(FlipClose());
+        }
+
+        public void ShowHighlightEffect(bool isUndo)
+        {
+            if (!isUndo)
+            {
+                var endScale = new Vector3(originalScale.x + scaleAdder, originalScale.y + scaleAdder, originalScale.z + scaleAdder);
+                transform.parent.DOScale(endScale, .6f);
+                eventClick.OnUnhover += DisableHighlightEffect;
+                return;
+            }
+            transform.parent.DOScale(originalScale, .6f);
+            eventClick.OnHover += EnableHighlightEffect;
         }
 
 

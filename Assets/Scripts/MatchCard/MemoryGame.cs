@@ -164,11 +164,11 @@ namespace Scripts.Minigames
 
                 if (Matches[i].CardToMatch != previousSelectedCard || Matches[i].CardToMatch != currentSelectedCard)
                 {
-                    Matches[i].CardToMatch.SetOutline(false);
+                    Matches[i].CardToMatch.ShowHighlightEffect(true);
                 }
                 if (Matches[i].DuplicateCardToMatch != previousSelectedCard || Matches[i].DuplicateCardToMatch != currentSelectedCard)
                 {
-                    Matches[i].DuplicateCardToMatch.SetOutline(false);
+                    Matches[i].DuplicateCardToMatch.ShowHighlightEffect(true);
                 }
             }
         }

@@ -1,4 +1,3 @@
-using Outsource.Outline;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,9 +6,6 @@ using UnityEngine.EventSystems;
 
 public class EventClick : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
 {
-    private bool isOutlineEnabled = false;
-    private Outline outline;
-
     public Action OnHover;
     public Action OnUnhover;
     public Action OnSelect;

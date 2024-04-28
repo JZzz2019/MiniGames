@@ -332,6 +332,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   IsTesting: 0
+  scaleModifier: 0
 --- !u!1 &138028592
 GameObject:
   m_ObjectHideFlags: 0
@@ -477,6 +478,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   IsTesting: 0
+  scaleModifier: 0
 --- !u!1 &178873760
 GameObject:
   m_ObjectHideFlags: 0
@@ -622,6 +624,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   IsTesting: 0
+  scaleModifier: 0
 --- !u!1 &238632141
 GameObject:
   m_ObjectHideFlags: 0
@@ -767,6 +770,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   IsTesting: 0
+  scaleModifier: 0
 --- !u!1 &305472532
 GameObject:
   m_ObjectHideFlags: 0
@@ -944,6 +948,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   IsTesting: 0
+  scaleModifier: 0
 --- !u!1 &518014236
 GameObject:
   m_ObjectHideFlags: 0
@@ -1089,6 +1094,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   IsTesting: 0
+  scaleModifier: 0
 --- !u!1 &635875566
 GameObject:
   m_ObjectHideFlags: 0
@@ -1115,7 +1121,7 @@ Transform:
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 10, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 1895761851}
   m_Father: {fileID: 2104638767}
@@ -1298,6 +1304,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   IsTesting: 0
+  scaleModifier: 0
 --- !u!1 &1028517819
 GameObject:
   m_ObjectHideFlags: 0
@@ -1352,7 +1359,7 @@ Camera:
   far clip plane: 1000
   field of view: 138
   orthographic: 1
-  orthographic size: 23.916533
+  orthographic size: 24
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -1654,6 +1661,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   IsTesting: 0
+  scaleModifier: 0
 --- !u!1 &1177194187
 GameObject:
   m_ObjectHideFlags: 0
@@ -1799,6 +1807,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   IsTesting: 0
+  scaleModifier: 0
 --- !u!1 &1251631581
 GameObject:
   m_ObjectHideFlags: 0
@@ -1944,6 +1953,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   IsTesting: 0
+  scaleModifier: 0
 --- !u!1 &1300548526
 GameObject:
   m_ObjectHideFlags: 0
@@ -2121,6 +2131,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   IsTesting: 0
+  scaleModifier: 0
 --- !u!1 &1355707247
 GameObject:
   m_ObjectHideFlags: 0
@@ -2266,6 +2277,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   IsTesting: 0
+  scaleModifier: 0
 --- !u!1 &1373289820
 GameObject:
   m_ObjectHideFlags: 0
@@ -2537,6 +2549,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   IsTesting: 0
+  scaleModifier: 0
 --- !u!1 &1437280580
 GameObject:
   m_ObjectHideFlags: 0
@@ -2778,6 +2791,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   IsTesting: 0
+  scaleModifier: 0
 --- !u!1 &1640838202
 GameObject:
   m_ObjectHideFlags: 0
@@ -3019,6 +3033,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   IsTesting: 0
+  scaleModifier: 0
 --- !u!1 &1728740064
 GameObject:
   m_ObjectHideFlags: 0
@@ -3196,6 +3211,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   IsTesting: 0
+  scaleModifier: 0
 --- !u!1 &1789787903
 GameObject:
   m_ObjectHideFlags: 0
@@ -3405,6 +3421,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   IsTesting: 0
+  scaleModifier: 0.1
 --- !u!1 &1941609501
 GameObject:
   m_ObjectHideFlags: 0
@@ -3582,6 +3599,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   IsTesting: 0
+  scaleModifier: 0
 --- !u!1 &2028599437
 GameObject:
   m_ObjectHideFlags: 0
@@ -3727,6 +3745,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   IsTesting: 0
+  scaleModifier: 0
 --- !u!1 &2078153656
 GameObject:
   m_ObjectHideFlags: 0
@@ -3872,6 +3891,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   IsTesting: 0
+  scaleModifier: 0
 --- !u!1 &2104638766
 GameObject:
   m_ObjectHideFlags: 0
