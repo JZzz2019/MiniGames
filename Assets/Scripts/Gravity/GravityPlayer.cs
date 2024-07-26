@@ -4,15 +4,22 @@ using UnityEngine;
 
 public class GravityPlayer : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    [SerializeField] private float moveSpeed = 12f;
+    private Vector3 moveDirection;
+    private Rigidbody playerRigidbody;
+
+    private void Start()
     {
-        
+        playerRigidbody = GetComponent<Rigidbody>();
     }
 
-    // Update is called once per frame
-    void Update()
+    private void Update()
     {
-        
+        moveDirection = new Vector3(Input.GetAxisRaw("Horizontal"), 0, 0).normalized;
+    }
+
+    private void FixedUpdate()
+    {
+        playerRigidbody.MovePosition(playerRigidbody.position + transform.TransformDirection(moveDirection) * moveSpeed * Time.deltaTime);
     }
 }

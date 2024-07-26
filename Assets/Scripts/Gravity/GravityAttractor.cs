@@ -5,6 +5,7 @@ using UnityEngine;
 public class GravityAttractor : MonoBehaviour
 {
     [SerializeField] private float gravity = -1;
+
     public void Attract(Transform body)
     {
         Vector3 gravityUp = (body.position - transform.position).normalized;
