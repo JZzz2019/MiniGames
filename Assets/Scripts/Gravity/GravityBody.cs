@@ -9,7 +9,7 @@ public class GravityBody : MonoBehaviour
     private Transform bodyTransform;
 
 
-    void Start()
+    private void Start()
     {
         GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeRotation;
         GetComponent<Rigidbody>().useGravity = false;
@@ -17,8 +17,13 @@ public class GravityBody : MonoBehaviour
     }
 
 
-    void Update()
+    private void Update()
     {
         attractor.Attract(bodyTransform);
+    }
+
+    public void ChangeGravityAttractor(GravityAttractor newAttracter)
+    {
+        attractor = newAttracter;
     }
 }
