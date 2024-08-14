@@ -15,7 +15,7 @@ public class GravityPlayer : MonoBehaviour
 
     private void Update()
     {
-        moveDirection = new Vector3(Input.GetAxisRaw("Horizontal"), 0, 0).normalized;
+        moveDirection = new Vector3(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"), 0).normalized;
     }
 
     private void FixedUpdate()
